@@ -46,7 +46,3 @@ GEMINI_API_KEY=your_key_here
 ```
 
 > The Gemini API key can also be entered inside the app under **Settings → AI**.
-
-## License
-
-MIT
