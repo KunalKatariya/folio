@@ -4,6 +4,9 @@ Your personal OS — a minimalist, elegant dashboard for daily tasks, writing, a
 
 ![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=next.js) ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?logo=typescript) ![Tailwind](https://img.shields.io/badge/Tailwind-v4-38bdf8?logo=tailwindcss)
 
+<img width="1440" height="700" alt="image" src="https://github.com/user-attachments/assets/b338fab3-5370-437c-bd70-1c142817003b" />
+
+
 ## Features
 
 - **My Day** — task planning with priorities, categories, streaks, and recurring tasks
