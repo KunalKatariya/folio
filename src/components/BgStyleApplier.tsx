@@ -71,6 +71,10 @@ export function BgStyleApplier() {
           --muted-foreground: 0 0% 65%;
           --border: 0 0% 100% / 0.08;
         }
+        .mobile-bottom-nav > div {
+          background: rgba(0, 0, 0, 0.65) !important;
+          border-color: rgba(255,255,255,0.08) !important;
+        }
       `
     } else {
       styleEl.textContent = ''

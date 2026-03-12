@@ -3,7 +3,7 @@ import { Geist, Geist_Mono, Playfair_Display, Lora } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
 import { Sidebar } from "@/components/layout/Sidebar";
-import { MobileHeader } from "@/components/layout/MobileHeader";
+import { MobileBottomNav } from "@/components/layout/MobileBottomNav";
 import { SeedData } from "@/components/SeedData";
 import { BgStyleApplier } from "@/components/BgStyleApplier";
 import { OnboardingFlow } from "@/components/onboarding/OnboardingFlow";
@@ -53,10 +53,10 @@ export default function RootLayout({
           <div className="app-shell flex h-screen overflow-hidden">
             <Sidebar />
             <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
-              <MobileHeader />
               <main className="main-content flex-1 overflow-y-auto">
                 {children}
               </main>
+              <MobileBottomNav />
             </div>
           </div>
         </Providers>

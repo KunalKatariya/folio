@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { useStore } from '@/store/useStore'
+import { useStore, Task } from '@/store/useStore'
 import { ProgressRing } from '@/components/ui/ProgressRing'
 import { StatsChart } from '@/components/charts/StatsChart'
 import { TaskItem } from '@/components/tasks/TaskItem'
@@ -42,6 +42,7 @@ function getStreak(getDayStats: (n: number) => { date: string; score: number }[]
 export default function DashboardPage() {
   const { getTasksForDate, getCompletionRate, getDayStats, tasks, posts, settings } = useStore()
   const [addOpen, setAddOpen] = useState(false)
+  const [editTask, setEditTask] = useState<Task | null>(null)
   const [applyTaskId, setApplyTaskId] = useState<string | null>(null)
   const [mounted, setMounted] = useState(false)
   useEffect(() => setMounted(true), [])
@@ -210,6 +211,7 @@ export default function DashboardPage() {
                   <TaskItem
                     key={task.id}
                     task={task}
+                    onEdit={(t) => setEditTask(t)}
                     onApplyToAll={(id) => setApplyTaskId(id)}
                   />
                 ))}
@@ -284,7 +286,11 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      <AddTaskModal open={addOpen} onClose={() => setAddOpen(false)} />
+      <AddTaskModal
+        open={addOpen || !!editTask}
+        onClose={() => { setAddOpen(false); setEditTask(null) }}
+        editTask={editTask}
+      />
       <ApplyToAllModal
         open={!!applyTaskId}
         onClose={() => setApplyTaskId(null)}

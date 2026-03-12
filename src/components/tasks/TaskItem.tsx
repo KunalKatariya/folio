@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Check, Trash2, ChevronDown, Repeat, Flag } from 'lucide-react'
+import { Check, Trash2, ChevronDown, Repeat, Pencil } from 'lucide-react'
 import { Task } from '@/store/useStore'
 import { useStore } from '@/store/useStore'
 import { cn, getPriorityBg, CATEGORY_COLORS } from '@/lib/utils'
@@ -11,9 +11,10 @@ import { Badge } from '@/components/ui/Badge'
 interface TaskItemProps {
   task: Task
   onApplyToAll?: (id: string) => void
+  onEdit?: (task: Task) => void
 }
 
-export function TaskItem({ task, onApplyToAll }: TaskItemProps) {
+export function TaskItem({ task, onApplyToAll, onEdit }: TaskItemProps) {
   const { toggleTask, deleteTask } = useStore()
   const [expanded, setExpanded] = useState(false)
   const [showActions, setShowActions] = useState(false)
@@ -132,12 +133,22 @@ export function TaskItem({ task, onApplyToAll }: TaskItemProps) {
               transition={{ duration: 0.15 }}
               className="flex items-center gap-1"
             >
+              {onEdit && (
+                <button
+                  onClick={() => onEdit(task)}
+                  className="w-7 h-7 rounded-lg flex items-center justify-center transition-colors hover:bg-amber-500/10 cursor-pointer"
+                  title="Edit task"
+                  style={{ color: '#f59e0b' }}
+                >
+                  <Pencil className="w-3.5 h-3.5" />
+                </button>
+              )}
               {onApplyToAll && (
                 <button
                   onClick={() => onApplyToAll(task.id)}
-                  className="w-7 h-7 rounded-lg flex items-center justify-center transition-colors hover:bg-amber-500/10 cursor-pointer"
+                  className="w-7 h-7 rounded-lg flex items-center justify-center transition-colors hover:bg-[hsl(var(--muted))] cursor-pointer"
                   title="Apply to next 30 days"
-                  style={{ color: '#f59e0b' }}
+                  style={{ color: 'hsl(var(--muted-foreground))' }}
                 >
                   <Repeat className="w-3.5 h-3.5" />
                 </button>

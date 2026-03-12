@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useStore } from '@/store/useStore'
 import { StatsChart } from '@/components/charts/StatsChart'
@@ -17,19 +17,23 @@ const TABS = ['Week', 'Month', 'Year']
 
 export default function StatsPage() {
   const { getDayStats, getMonthlyStats, tasks, settings } = useStore()
+  const [mounted, setMounted] = useState(false)
   const [tab, setTab] = useState('Week')
   const { theme } = useTheme()
 
-  const weekData = getDayStats(7)
-  const monthData = getDayStats(30)
-  const yearData = getMonthlyStats(12)
+  useEffect(() => setMounted(true), [])
+
+  const weekData = mounted ? getDayStats(7) : []
+  const monthData = mounted ? getDayStats(30) : []
+  const yearData = mounted ? getMonthlyStats(12) : []
+  const resolvedTasks = mounted ? tasks : []
 
   const axisColor = theme === 'dark' ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.3)'
   const gridColor = theme === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)'
 
   // Category analytics
   const categoryMap: Record<string, { total: number; completed: number }> = {}
-  tasks.forEach((t) => {
+  resolvedTasks.forEach((t) => {
     if (!categoryMap[t.category]) categoryMap[t.category] = { total: 0, completed: 0 }
     categoryMap[t.category].total++
     if (t.completed) categoryMap[t.category].completed++
@@ -46,8 +50,8 @@ export default function StatsPage() {
     .slice(0, 6)
 
   // Overall stats
-  const totalTasks = tasks.length
-  const completedTasks = tasks.filter((t) => t.completed).length
+  const totalTasks = resolvedTasks.length
+  const completedTasks = resolvedTasks.filter((t) => t.completed).length
   const overallRate = totalTasks === 0 ? 0 : Math.round((completedTasks / totalTasks) * 100)
   const weekAvg = weekData.length === 0 ? 0 : Math.round(weekData.reduce((a, b) => a + b.score, 0) / weekData.length)
   const bestDay = weekData.reduce((a, b) => (a.score > b.score ? a : b), { score: 0, date: '' })

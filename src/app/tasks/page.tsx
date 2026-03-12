@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useStore } from '@/store/useStore'
 import { TaskItem } from '@/components/tasks/TaskItem'
@@ -8,6 +8,7 @@ import { AddTaskModal } from '@/components/tasks/AddTaskModal'
 import { ApplyToAllModal } from '@/components/tasks/ApplyToAllModal'
 import { ProgressRing } from '@/components/ui/ProgressRing'
 import { format, addDays, subDays } from 'date-fns'
+import { Task } from '@/store/useStore'
 import {
   getTodayString,
   getDateString,
@@ -28,14 +29,18 @@ const FILTER_OPTIONS = ['All', 'Active', 'Completed', 'High', 'Medium', 'Low']
 
 export default function TasksPage() {
   const { getTasksForDate, getCompletionRate } = useStore()
+  const [mounted, setMounted] = useState(false)
   const [selectedDate, setSelectedDate] = useState(getTodayString())
   const [addOpen, setAddOpen] = useState(false)
+  const [editTask, setEditTask] = useState<Task | null>(null)
   const [applyTaskId, setApplyTaskId] = useState<string | null>(null)
   const [filter, setFilter] = useState('All')
   const [search, setSearch] = useState('')
 
-  const allTasks = getTasksForDate(selectedDate)
-  const completionRate = getCompletionRate(selectedDate)
+  useEffect(() => setMounted(true), [])
+
+  const allTasks = mounted ? getTasksForDate(selectedDate) : []
+  const completionRate = mounted ? getCompletionRate(selectedDate) : 0
 
   const tasks = useMemo(() => {
     return allTasks.filter((t) => {
@@ -260,6 +265,7 @@ export default function TasksPage() {
               <TaskItem
                 key={task.id}
                 task={task}
+                onEdit={(t) => setEditTask(t)}
                 onApplyToAll={(id) => setApplyTaskId(id)}
               />
             ))
@@ -268,9 +274,10 @@ export default function TasksPage() {
       </AnimatePresence>
 
       <AddTaskModal
-        open={addOpen}
-        onClose={() => setAddOpen(false)}
+        open={addOpen || !!editTask}
+        onClose={() => { setAddOpen(false); setEditTask(null) }}
         defaultDate={selectedDate}
+        editTask={editTask}
       />
       <ApplyToAllModal
         open={!!applyTaskId}

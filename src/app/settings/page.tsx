@@ -4,6 +4,7 @@ import { useState, useRef } from 'react'
 import { motion } from 'framer-motion'
 import { useStore } from '@/store/useStore'
 import type { BgStyle } from '@/store/useStore'
+import { ThemeToggle } from '@/components/layout/ThemeToggle'
 import {
   User, Palette, Youtube, Instagram, Check,
   RefreshCw, AlertCircle, ImageIcon, X, ExternalLink, Sparkles,
@@ -251,6 +252,13 @@ export default function SettingsPage() {
                   </p>
                 )}
               </div>
+            </Field>
+          </div>
+
+          {/* Theme */}
+          <div className="border-t pt-5" style={{ borderColor: 'hsl(var(--border))' }}>
+            <Field label="Theme" description="Toggle between light and dark mode">
+              <ThemeToggle collapsed={false} />
             </Field>
           </div>
         </Section>

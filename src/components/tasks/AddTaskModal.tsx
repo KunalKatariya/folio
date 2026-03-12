@@ -1,8 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Modal } from '@/components/ui/Modal'
-import { useStore, Priority, RecurringType } from '@/store/useStore'
+import { useStore, Priority, RecurringType, Task } from '@/store/useStore'
 import { CATEGORIES, getTodayString } from '@/lib/utils'
 import { Flag, Clock, Calendar } from 'lucide-react'
 
@@ -10,6 +10,7 @@ interface AddTaskModalProps {
   open: boolean
   onClose: () => void
   defaultDate?: string
+  editTask?: Task | null
 }
 
 const priorities: Priority[] = ['high', 'medium', 'low']
@@ -20,9 +21,11 @@ const recurringOptions: { value: RecurringType; label: string }[] = [
   { value: 'monthly', label: 'Monthly' },
 ]
 
-export function AddTaskModal({ open, onClose, defaultDate }: AddTaskModalProps) {
-  const { addTask } = useStore()
-  const [form, setForm] = useState({
+export function AddTaskModal({ open, onClose, defaultDate, editTask }: AddTaskModalProps) {
+  const { addTask, updateTask } = useStore()
+  const isEditing = !!editTask
+
+  const emptyForm = {
     title: '',
     description: '',
     date: defaultDate || getTodayString(),
@@ -30,30 +33,53 @@ export function AddTaskModal({ open, onClose, defaultDate }: AddTaskModalProps) 
     category: 'Personal',
     recurring: 'none' as RecurringType,
     timeEstimate: '',
-  })
+  }
+
+  const [form, setForm] = useState(emptyForm)
+
+  useEffect(() => {
+    if (editTask) {
+      setForm({
+        title: editTask.title,
+        description: editTask.description || '',
+        date: editTask.date,
+        priority: editTask.priority,
+        category: editTask.category,
+        recurring: editTask.recurring,
+        timeEstimate: editTask.timeEstimate ? String(editTask.timeEstimate) : '',
+      })
+    } else {
+      setForm(emptyForm)
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [editTask, open])
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (!form.title.trim()) return
-    addTask({
-      title: form.title.trim(),
-      description: form.description.trim() || undefined,
-      date: form.date,
-      priority: form.priority,
-      category: form.category,
-      recurring: form.recurring,
-      completed: false,
-      timeEstimate: form.timeEstimate ? parseInt(form.timeEstimate) : undefined,
-    })
-    setForm({
-      title: '',
-      description: '',
-      date: defaultDate || getTodayString(),
-      priority: 'medium',
-      category: 'Personal',
-      recurring: 'none',
-      timeEstimate: '',
-    })
+    if (isEditing && editTask) {
+      updateTask(editTask.id, {
+        title: form.title.trim(),
+        description: form.description.trim() || undefined,
+        date: form.date,
+        priority: form.priority,
+        category: form.category,
+        recurring: form.recurring,
+        timeEstimate: form.timeEstimate ? parseInt(form.timeEstimate) : undefined,
+      })
+    } else {
+      addTask({
+        title: form.title.trim(),
+        description: form.description.trim() || undefined,
+        date: form.date,
+        priority: form.priority,
+        category: form.category,
+        recurring: form.recurring,
+        completed: false,
+        timeEstimate: form.timeEstimate ? parseInt(form.timeEstimate) : undefined,
+      })
+    }
+    setForm(emptyForm)
     onClose()
   }
 
@@ -61,7 +87,7 @@ export function AddTaskModal({ open, onClose, defaultDate }: AddTaskModalProps) 
   const labelClass = 'block text-xs font-medium mb-1.5 text-[hsl(var(--muted-foreground))]'
 
   return (
-    <Modal open={open} onClose={onClose} title="New Task">
+    <Modal open={open} onClose={onClose} title={isEditing ? 'Edit Task' : 'New Task'}>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label className={labelClass}>Task title *</label>
@@ -191,7 +217,7 @@ export function AddTaskModal({ open, onClose, defaultDate }: AddTaskModalProps) 
               color: '#fff',
             }}
           >
-            Create Task
+            {isEditing ? 'Save Changes' : 'Create Task'}
           </button>
         </div>
       </form>

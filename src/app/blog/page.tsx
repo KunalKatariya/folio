@@ -1,9 +1,10 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { useStore } from '@/store/useStore'
 import { BlogCard } from '@/components/blog/BlogCard'
+import { MoodAnalyser } from '@/components/blog/MoodAnalyser'
 import Link from 'next/link'
 import { PenLine, Globe, FileText, Search } from 'lucide-react'
 
@@ -11,10 +12,15 @@ const TABS = ['All', 'Published', 'Drafts']
 
 export default function BlogPage() {
   const { posts } = useStore()
+  const [mounted, setMounted] = useState(false)
   const [tab, setTab] = useState('All')
   const [search, setSearch] = useState('')
 
-  const filtered = posts.filter((p) => {
+  useEffect(() => setMounted(true), [])
+
+  const resolvedPosts = mounted ? posts : []
+
+  const filtered = resolvedPosts.filter((p) => {
     const matchesTab =
       tab === 'All' ||
       (tab === 'Published' && p.published) ||
@@ -26,11 +32,11 @@ export default function BlogPage() {
     return matchesTab && matchesSearch
   })
 
-  const published = posts.filter((p) => p.published).length
-  const drafts = posts.filter((p) => !p.published).length
+  const published = resolvedPosts.filter((p) => p.published).length
+  const drafts = resolvedPosts.filter((p) => !p.published).length
 
   return (
-    <div className="min-h-full px-4 md:px-8 pt-6 md:pt-10 pb-16 max-w-3xl mx-auto">
+    <div className="min-h-full px-4 md:px-8 pt-6 md:pt-10 pb-16 max-w-3xl mx-auto overflow-x-hidden">
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -12 }}
@@ -66,16 +72,16 @@ export default function BlogPage() {
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.05 }}
-        className="flex items-center gap-4 mb-6"
+        className="grid grid-cols-3 gap-3 mb-6"
       >
         {[
-          { icon: FileText, label: 'Total', value: posts.length, color: '#f59e0b' },
+          { icon: FileText, label: 'Total', value: resolvedPosts.length, color: '#f59e0b' },
           { icon: Globe, label: 'Published', value: published, color: '#22c55e' },
           { icon: PenLine, label: 'Drafts', value: drafts, color: '#8b5cf6' },
         ].map((s) => (
           <div
             key={s.label}
-            className="flex items-center gap-3 flex-1 rounded-2xl border px-4 py-3 glass-card"
+            className="flex items-center gap-2 rounded-2xl border px-3 py-3 glass-card min-w-0"
           >
             <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: `${s.color}18` }}>
               <s.icon style={{ color: s.color, width: 16, height: 16 }} />
@@ -88,12 +94,22 @@ export default function BlogPage() {
         ))}
       </motion.div>
 
+      {/* Mood Analyser */}
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.08 }}
+        className="mb-6"
+      >
+        <MoodAnalyser />
+      </motion.div>
+
       {/* Tabs + Search */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.1 }}
-        className="flex items-center gap-3 mb-6"
+        className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 mb-6"
       >
         <div className="flex items-center gap-1 p-1 rounded-xl" style={{ background: 'hsl(var(--muted))' }}>
           {TABS.map((t) => (
